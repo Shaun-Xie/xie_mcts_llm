@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 import random
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 from .game import GameState, apply_move, check_terminal, legal_moves, new_game, winner
 from .llm_eval import evaluate_position
@@ -136,15 +136,40 @@ class LLMMCTSAgent(BaseMCTSAgent):
     def __init__(self, iters: int = 300, exploration_c: float = 1.41421356237, seed: Optional[int] = None) -> None:
         super().__init__(iters=iters, exploration_c=exploration_c, seed=seed)
         self.cache: Dict[Tuple[str, str], Dict[str, object]] = {}
+        self.eval_requests: int = 0
+        self.cache_hits: int = 0
+        self.cache_misses: int = 0
+
+    def reset_cache_stats(self) -> None:
+        """Reset counters used by experiment reporting."""
+        self.eval_requests = 0
+        self.cache_hits = 0
+        self.cache_misses = 0
+
+    def cache_stats(self) -> Dict[str, Union[int, float]]:
+        """Return cache counters and hit rate."""
+        total_lookups = self.cache_hits + self.cache_misses
+        hit_rate = (self.cache_hits / total_lookups) if total_lookups else 0.0
+        return {
+            "eval_requests": self.eval_requests,
+            "cache_hits": self.cache_hits,
+            "cache_misses": self.cache_misses,
+            "cache_hit_rate": hit_rate,
+            "cache_size": len(self.cache),
+        }
 
     def evaluate_leaf(self, state: GameState) -> float:
         if check_terminal(state):
             return self._terminal_value(state)
 
+        self.eval_requests += 1
         key = (state.board, state.player)
         if key not in self.cache:
+            self.cache_misses += 1
             board_text = "\n".join((state.board[0:3], state.board[3:6], state.board[6:9]))
             self.cache[key] = evaluate_position(board_text=board_text, player=state.player)
+        else:
+            self.cache_hits += 1
 
         value = self.cache[key].get("value", 0.5)
         try:

@@ -238,6 +238,9 @@ def evaluate_position(board_text: str, player: str) -> Dict[str, object]:
     prompt = _format_prompt(board_text=board_text, player=player)
 
     provider_pref = os.getenv("TTT_LLM_PROVIDER", "ollama").strip().lower()
+    if provider_pref == "heuristic":
+        return _heuristic_eval(board_text=board_text, player=player)
+
     has_openai_key = bool(os.getenv("OPENAI_API_KEY"))
     providers: List[Tuple[str, Callable[[str], Dict[str, object]]]] = []
     if provider_pref == "openai":
@@ -260,3 +263,14 @@ def evaluate_position(board_text: str, player: str) -> Dict[str, object]:
             continue
 
     return _heuristic_eval(board_text=board_text, player=player)
+
+
+def runtime_config() -> Dict[str, str]:
+    """Expose resolved runtime LLM settings for metadata/logging."""
+    return {
+        "provider_preference": os.getenv("TTT_LLM_PROVIDER", "ollama"),
+        "openai_model": os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
+        "openai_base_url": os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1"),
+        "ollama_model": os.getenv("OLLAMA_MODEL", "llama3.1"),
+        "ollama_base_url": os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
+    }

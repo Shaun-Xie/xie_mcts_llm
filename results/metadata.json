@@ -1,0 +1,33 @@
+{
+  "generated_at": "2026-03-02T20:27:31.803731+00:00",
+  "python": "3.12.3 (main, Jan 22 2026, 20:57:42) [GCC 13.3.0]",
+  "platform": "Linux-5.15.133.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "hostname": "DESKTOP-ROJT45H",
+  "config": {
+    "iters": [
+      10,
+      50,
+      100,
+      500
+    ],
+    "games": 200,
+    "seed": 0,
+    "llm_mode": "heuristic",
+    "matchups": [
+      "baseline_vs_llm",
+      "baseline_vs_minimax",
+      "llm_vs_minimax"
+    ]
+  },
+  "llm_runtime": {
+    "provider_preference": "heuristic",
+    "openai_model": "gpt-4o-mini",
+    "openai_base_url": "https://api.openai.com/v1",
+    "ollama_model": "llama3.1",
+    "ollama_base_url": "http://localhost:11434"
+  },
+  "outputs": {
+    "results_csv": "results/results.csv",
+    "per_game_jsonl": "results/per_game.jsonl"
+  }
+}
