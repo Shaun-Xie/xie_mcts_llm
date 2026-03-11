@@ -1,4 +1,4 @@
-# LLM-Guided MCTS for Tic-Tac-Toe (PA4 Parts 1-2)
+# LLM-Guided MCTS for Tic-Tac-Toe
 
 This repository contains:
 - **Part 1**: game engine, baseline MCTS, LLM-guided MCTS, and demo CLI
